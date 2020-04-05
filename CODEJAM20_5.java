@@ -5,7 +5,6 @@ import java.io.*;
  * CODEJAM20_5
  */
 public class CODEJAM20_5 {
-
     static class FastReader {
         BufferedReader br;
         StringTokenizer st;
@@ -48,65 +47,57 @@ public class CODEJAM20_5 {
         }
     }
 
+    static boolean solved;
+    static boolean rowSafe[][] = new boolean[60][60];
+    static boolean colSafe[][] = new boolean[60][60];
+    static int sqr[][] = new int[60][60];
+    static int n, k, w;
+
     public static void main(String[] args) {
         FastReader sc = new FastReader();
         int t = sc.nextInt();
-        for (int w = 1; w <= t; w++) {
-            int n = sc.nextInt();
-            int k = sc.nextInt();
-            boolean possible = false;
-            int index = 0;
-            for (int i = 1; i <= n; i++) {
-                if (k % i == 0 && k / i == n) {
-                    possible = true;
-                    index = i;
-                    break;
-                }
+        for (w = 1; w <= t; w++) {
+            n = sc.nextInt();
+            k = sc.nextInt();
+            solve(1, 1, 0);
+            if (!solved) {
+                System.out.println("Case #" + w + ": " + "IMPOSSIBLE");
             }
-            if (!possible) {
-                if (k % ((n * (n + 1)) / 2) == 0) {
-                    possible = true;
-                    index = n + 1;
-                }
-            }
-            System.out.print("Case #" + w + ": ");
-            if (!possible && n == 2 && k == 3) {
-                System.out.println("IMPOSSIBLE");
-            } else {
-                int a[] = new int[n];
-                for (int i = 1; i <= n; i++) {
-                    a[i - 1] = i;
-                }
-                System.out.println("POSSIBLE");
-                if (index == n + 1) {
-                    System.out.println("index = "+index);
-                    for (int i = 0; i < n; i++) {
-                        for (int j = 0; j < n; j++) {
-                            System.out.print(a[(i+j)%n]+" ");
-                        }
-                        System.out.println();
-                    }
-                } else {
-                    
-                    System.out.println("index = "+index);
-                    
-                    int count = 0;
-                    while (count < n) {
-                        for (int i = 0; i < n; i++) {
-                            int rem = (i + index) % n;
-                            if (rem != 0)
-                                System.out.print(a[rem-1]+" ");
-                            else
-                                System.out.print(a[n-1]+" ");
-                            if (i == n - 1) {
-                                index = a[(i + index) % n]-1;
-                            }
-                        }
-                        System.out.println();
-                        count++;
-                    }
+            solved = false;
+        }
+    }
 
+    private static void solve(int row, int col, int m) {
+        if (row == n && col == n + 1 && m == k && !solved) {
+            solved = true;
+            System.out.println("Case #" + w + ": POSSIBLE");
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; ++j) {
+                    System.out.print(sqr[i][j] + " ");
                 }
+                System.out.println();
+            }
+            return;
+        } else if (row > n) {
+            return;
+        } else if (col > n) {
+            solve(row + 1, 1, m);
+        }
+        for (int i = 1; i <= n && !solved; i++) {
+            if (!rowSafe[row][i] && !colSafe[col][i]) {
+                rowSafe[row][i] = colSafe[col][i] = true;
+                if (row == col) {
+                    m += i;
+                }
+                sqr[row][col] = i;
+
+                solve(row, col + 1, m);
+
+                rowSafe[row][i] = colSafe[col][i] = false;
+                if (row == col) {
+                    m -= i;
+                }
+                sqr[row][col] = 0;
             }
         }
     }
